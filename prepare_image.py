@@ -20,13 +20,14 @@ DEFAULT_SOURCE = Path(__file__).parent / "w_flag_source.png"
 
 
 def prepare(source_path: Path) -> None:
+    """Resize and centre source_path onto a white 64x32 canvas and save to OUTPUT_PATH."""
     img = Image.open(source_path).convert("RGB")
 
     # --- Crop to flag content (remove whitespace / pole hardware) ----------
     # The flag image is landscape; we want the W centred with minimal border.
     # PIL thumbnail keeps aspect ratio; we then paste onto a white 64x32 canvas
     # with the flag centred.
-    img.thumbnail((MATRIX_W, MATRIX_H), Image.LANCZOS)
+    img.thumbnail((MATRIX_W, MATRIX_H), Image.Resampling.LANCZOS)
 
     canvas = Image.new("RGB", (MATRIX_W, MATRIX_H), (255, 255, 255))
     x_off = (MATRIX_W - img.width) // 2
@@ -41,6 +42,7 @@ def prepare(source_path: Path) -> None:
 
 
 def main() -> None:
+    """Parse CLI argument and invoke prepare()."""
     source = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_SOURCE
     if not source.exists():
         print(f"Source image not found: {source}")
