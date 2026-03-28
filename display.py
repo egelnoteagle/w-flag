@@ -9,7 +9,6 @@ Provides two functions:
 """
 
 import logging
-import os
 from pathlib import Path
 
 log = logging.getLogger(__name__)
@@ -49,14 +48,14 @@ def _build_matrix():
 
 
 # Module-level matrix singleton so we don't re-initialise on every call.
-_matrix = None
+_MATRIX = None
 
 
 def _get_matrix():
-    global _matrix
-    if _matrix is None and _HW_AVAILABLE:
-        _matrix = _build_matrix()
-    return _matrix
+    global _MATRIX
+    if _MATRIX is None and _HW_AVAILABLE:
+        _MATRIX = _build_matrix()
+    return _MATRIX
 
 
 def show_w_flag() -> None:
@@ -70,8 +69,6 @@ def show_w_flag() -> None:
     if not _HW_AVAILABLE:
         log.info("[STUB] Would display W flag on LED matrix")
         return
-
-    from PIL import Image
 
     matrix = _get_matrix()
     img = Image.open(IMAGE_PATH).convert("RGB")
