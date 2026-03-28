@@ -1,0 +1,19 @@
+[Unit]
+Description=W Flag — Cubs Win LED Display
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# rpi-rgb-led-matrix requires root for GPIO/DMA access
+User=root
+WorkingDirectory=REPO_DIR
+ExecStart=VENV_DIR/bin/python3 REPO_DIR/main.py
+Restart=on-failure
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=w-flag
+
+[Install]
+WantedBy=multi-user.target
