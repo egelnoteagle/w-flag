@@ -8,7 +8,7 @@ Type=simple
 # rpi-rgb-led-matrix requires root for GPIO/DMA access
 User=root
 WorkingDirectory=REPO_DIR
-ExecStart=VENV_DIR/bin/python3 REPO_DIR/main.py
+ExecStart=VENV_DIR/bin/python3 -m wflag.main
 Restart=on-failure
 RestartSec=15
 StandardOutput=journal

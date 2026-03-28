@@ -11,10 +11,11 @@ import sqlite3
 import sys
 import zoneinfo
 from datetime import datetime
+from pathlib import Path
 
 import requests
 
-DB_PATH = "schedule.db"
+DB_PATH = Path(__file__).parent.parent / "schedule.db"
 CUBS_TEAM_ID = 112
 SEASON = 2026
 MLB_SCHEDULE_URL = (
@@ -23,12 +24,11 @@ MLB_SCHEDULE_URL = (
     f"&gameType=R&fields=dates,date,games,gamePk,gameDate,status,abstractGameState,teams,home,away,team,id,name"
 )
 
-# MLB API returns times in UTC; games are played in various local zones but
-# Chicago time (America/Chicago) is what we care about for "did they play today?"
 CHICAGO_TZ = zoneinfo.ZoneInfo("America/Chicago")
 
 
 def create_db(conn: sqlite3.Connection) -> None:
+    """Create the games table if it does not already exist."""
     conn.execute("""
         CREATE TABLE IF NOT EXISTS games (
             game_pk     INTEGER PRIMARY KEY,
@@ -45,6 +45,7 @@ def create_db(conn: sqlite3.Connection) -> None:
 
 
 def fetch_schedule() -> list[dict]:
+    """Fetch the full Cubs regular-season schedule from the MLB Stats API."""
     print(f"Fetching {SEASON} Cubs schedule from MLB Stats API...")
     resp = requests.get(MLB_SCHEDULE_URL, timeout=30)
     resp.raise_for_status()
@@ -54,7 +55,6 @@ def fetch_schedule() -> list[dict]:
     for date_block in data.get("dates", []):
         for game in date_block.get("games", []):
             game_pk = game["gamePk"]
-            # gameDate is ISO-8601 UTC, e.g. "2026-04-09T17:05:00Z"
             game_date_utc = datetime.fromisoformat(
                 game["gameDate"].replace("Z", "+00:00")
             )
@@ -78,6 +78,7 @@ def fetch_schedule() -> list[dict]:
 
 
 def upsert_games(conn: sqlite3.Connection, games: list[dict]) -> None:
+    """Insert or update game rows in the database."""
     conn.executemany(
         """
         INSERT INTO games (game_pk, game_date, game_time, home_team, away_team, home_id, away_id, status)
@@ -96,6 +97,7 @@ def upsert_games(conn: sqlite3.Connection, games: list[dict]) -> None:
 
 
 def main() -> None:
+    """Fetch the Cubs schedule and store it in the local database."""
     conn = sqlite3.connect(DB_PATH)
     create_db(conn)
     games = fetch_schedule()
@@ -105,7 +107,6 @@ def main() -> None:
     upsert_games(conn, games)
     print(f"Stored {len(games)} games in {DB_PATH}")
 
-    # Print first 5 games as a sanity check
     cur = conn.execute(
         "SELECT game_date, game_time, away_team, home_team FROM games ORDER BY game_date LIMIT 5"
     )

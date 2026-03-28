@@ -5,7 +5,7 @@ ignore = [
 ]
 
 [lint.per-file-ignores]
-"display.py" = ["F401"]  # rgbmatrix/PIL imports inside try/except flagged as unused on non-Pi
+"wflag/display.py" = ["F401"]  # rgbmatrix/PIL imports inside try/except flagged as unused on non-Pi
 
 [format]
 quote-style = "double"

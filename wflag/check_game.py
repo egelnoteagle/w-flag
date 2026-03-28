@@ -10,16 +10,16 @@ import logging
 import sqlite3
 import zoneinfo
 from datetime import date, datetime
+from pathlib import Path
 
 import requests
 
 log = logging.getLogger(__name__)
 
 CUBS_TEAM_ID = 112
-DB_PATH = "schedule.db"
+DB_PATH = Path(__file__).parent.parent / "schedule.db"
 CHICAGO_TZ = zoneinfo.ZoneInfo("America/Chicago")
 
-MLB_LINESCORE_URL = "https://statsapi.mlb.com/api/v1/game/{game_pk}/linescore"
 MLB_FEED_URL = (
     "https://statsapi.mlb.com/api/v1.1/game/{game_pk}/feed/live"
     "?fields=gameData,status,abstractGameState,detailedState,teams,home,away,team,id,linescore,teams,runs,wins,losses"
@@ -45,6 +45,7 @@ def get_todays_game(today: date | None = None) -> dict | None:
 def cubs_won(game_pk: int) -> bool | None:
     """
     Check the live feed for a game.
+
     Returns:
         True   — Cubs won (game is Final)
         False  — Cubs lost (game is Final)
@@ -67,7 +68,6 @@ def cubs_won(game_pk: int) -> bool | None:
         log.info("Game %s state: %s — not final yet", game_pk, abstract_state)
         return None
 
-    # Determine which side (home or away) is the Cubs
     teams = game_data.get("teams", {})
     home_id = teams.get("home", {}).get("id")
     away_id = teams.get("away", {}).get("id")
@@ -84,9 +84,7 @@ def cubs_won(game_pk: int) -> bool | None:
         log.error("Cubs not found in game %s teams!", game_pk)
         return False
 
-    log.info(
-        "Game %s final — Cubs %d, Opponent %d", game_pk, cubs_runs, opp_runs
-    )
+    log.info("Game %s final — Cubs %d, Opponent %d", game_pk, cubs_runs, opp_runs)
     return cubs_runs > opp_runs
 
 

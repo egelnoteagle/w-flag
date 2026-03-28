@@ -15,9 +15,9 @@ sudo bash install.sh          # builds rpi-rgb-led-matrix, creates venv, seeds D
 Manual steps if needed:
 
 ```bash
-python3 setup_schedule.py     # (re-)fetch Cubs schedule → schedule.db
-python3 prepare_image.py      # resize w_flag_source.png → w_flag_64x32.png
-sudo venv/bin/python3 main.py # run the daemon (root required for GPIO)
+python3 -m wflag.setup_schedule   # (re-)fetch Cubs schedule → schedule.db
+python3 -m wflag.prepare_image    # resize assets/w_flag_source.png → assets/w_flag_64x32.png
+sudo python3 -m wflag.main        # run the daemon (root required for GPIO)
 ```
 
 Service management:
@@ -30,12 +30,14 @@ sudo journalctl -u w-flag -f
 ## Architecture
 
 ```
-main.py            — scheduler loop (runs as root)
+wflag/
+  main.py            — scheduler loop (runs as root)
   ├── check_game.py  — MLB Stats API queries + schedule.db reads/writes
   └── display.py     — rpi-rgb-led-matrix wrapper (stubs gracefully off-Pi)
+  setup_schedule.py  — one-shot: populate schedule.db from MLB API
+  prepare_image.py   — one-shot: produce assets/w_flag_64x32.png from assets/w_flag_source.png
 
-setup_schedule.py  — one-shot: populate schedule.db from MLB API
-prepare_image.py   — one-shot: produce w_flag_64x32.png from w_flag_source.png
+assets/              — w_flag_source.png (committed); w_flag_64x32.png (generated, gitignored)
 ```
 
 **Data flow:**

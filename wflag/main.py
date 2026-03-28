@@ -5,15 +5,15 @@ W Flag Daemon — main entry point.
 Logic:
   1. At startup (and every day at 00:05 Chicago time) check the local schedule DB
      for today's Cubs game.
-  2. If there is a game, schedule a check ~3.5 hours after the listed start time
-     (covers average MLB game length of ~3h 10m with buffer).
+  2. If there is a game, schedule a check ~2h 38m after the listed start time
+     (covers average MLB game length with buffer).
   3. At check time, call the MLB API. If the game is not yet Final, retry every
      5 minutes until it is (or until midnight).
   4. If Cubs won → display W flag. If they lost → clear the display.
   5. Clear the display at 23:59 each night to reset for the next day.
 
 Run as root (required by the rpi-rgb-led-matrix library):
-    sudo python3 main.py
+    sudo python3 -m wflag.main
 """
 
 import logging
@@ -25,8 +25,7 @@ from datetime import datetime, timedelta
 
 import schedule  # pip install schedule
 
-import check_game
-import display
+from wflag import check_game, display
 
 logging.basicConfig(
     level=logging.INFO,
@@ -49,6 +48,7 @@ MAX_RETRY_UNTIL_HOUR = 23 # stop retrying after 11 PM
 # ---------------------------------------------------------------------------
 
 def now_chicago() -> datetime:
+    """Return the current datetime in Chicago local time."""
     return datetime.now(CHICAGO_TZ)
 
 
@@ -89,7 +89,7 @@ def check_and_display(game: dict) -> None:
 def schedule_todays_check() -> None:
     """
     Look up today's game in the DB and, if one exists, schedule a result-check
-    3.5 hours after the listed start time.
+    2h 38m after the listed start time.
     """
     today = now_chicago().date()
     game = check_game.get_todays_game(today)
@@ -98,7 +98,6 @@ def schedule_todays_check() -> None:
         log.info("%s — no Cubs game today, nothing to schedule.", today)
         return
 
-    # Parse game start time and compute check time
     start_dt = datetime.strptime(
         f"{game['game_date']} {game['game_time']}", "%Y-%m-%d %H:%M"
     ).replace(tzinfo=CHICAGO_TZ)
@@ -113,7 +112,6 @@ def schedule_todays_check() -> None:
     )
 
     if check_dt <= now:
-        # We've already passed the check window (e.g. daemon restarted late)
         log.info("Check time already passed — checking result immediately.")
         check_and_display(game)
     else:
@@ -122,7 +120,6 @@ def schedule_todays_check() -> None:
 
         def _deferred_check():
             check_and_display(game)
-            # Cancel this job after it fires once
             return schedule.CancelJob
 
         schedule.every().day.at(check_time_str).do(_deferred_check).tag("game_check")
@@ -141,10 +138,10 @@ def daily_reset() -> None:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
+    """Start the W Flag daemon."""
     log.info("W Flag Daemon starting.")
 
-    # Graceful shutdown on SIGTERM / SIGINT
-    def _shutdown(signum, frame):
+    def _shutdown(signum, _frame):
         log.info("Received signal %s — shutting down.", signum)
         display.clear()
         sys.exit(0)
@@ -152,12 +149,10 @@ def main() -> None:
     signal.signal(signal.SIGTERM, _shutdown)
     signal.signal(signal.SIGINT, _shutdown)
 
-    # Run once at startup
     schedule_todays_check()
 
-    # Daily jobs (Chicago local time)
-    schedule.every().day.at("00:05").do(daily_reset)   # refresh schedule at midnight
-    schedule.every().day.at("23:59").do(display.clear) # blank display at end of day
+    schedule.every().day.at("00:05").do(daily_reset)
+    schedule.every().day.at("23:59").do(display.clear)
 
     log.info("Scheduler running. Press Ctrl-C to stop.")
     while True:

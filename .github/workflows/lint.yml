@@ -34,4 +34,4 @@ jobs:
       # Mypy: type checking
       # rgbmatrix has no stubs so we ignore missing imports for it
       - name: Mypy
-        run: mypy --ignore-missing-imports --python-version 3.11 *.py
+        run: mypy --ignore-missing-imports --python-version 3.11 wflag/

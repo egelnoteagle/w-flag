@@ -59,13 +59,13 @@ sudo journalctl -u w-flag -f
 
 ```bash
 # Re-fetch the schedule (e.g. after a rainout reschedule)
-python3 setup_schedule.py
+python3 -m wflag.setup_schedule
 
-# Re-process the flag image after swapping w_flag_source.png
-python3 prepare_image.py
+# Re-process the flag image after swapping assets/w_flag_source.png
+python3 -m wflag.prepare_image
 
 # Run the daemon directly
-sudo venv/bin/python3 main.py
+sudo python3 -m wflag.main
 ```
 
 ## Configuration

@@ -21,7 +21,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Fetch Cubs schedule from MLB API
-        run: python setup_schedule.py
+        run: python -m wflag.setup_schedule
 
       - name: Verify schedule database has games
         run: |

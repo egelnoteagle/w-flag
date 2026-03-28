@@ -1,6 +1,7 @@
 venv/
 schedule.db
-w_flag_64x32.png
+assets/w_flag_64x32.png
 w_flag.log
 __pycache__/
 *.pyc
+.ruff_cache/

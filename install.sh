@@ -37,20 +37,19 @@ python3 -m venv "$VENV_DIR"
 # ---------------------------------------------------------------------------
 # Prepare the W flag image
 # ---------------------------------------------------------------------------
-if [ -f "$REPO_DIR/w_flag_source.png" ]; then
+if [ -f "$REPO_DIR/assets/w_flag_source.png" ]; then
     echo "==> Preparing W flag image for 64x32 matrix..."
-    "$VENV_DIR/bin/python3" "$REPO_DIR/prepare_image.py"
+    "$VENV_DIR/bin/python3" -m wflag.prepare_image
 else
-    echo "WARNING: w_flag_source.png not found — copy your W flag image to:"
-    echo "  $REPO_DIR/w_flag_source.png"
-    echo "  then run:  python3 prepare_image.py"
+    echo "WARNING: assets/w_flag_source.png not found — copy your W flag image there,"
+    echo "  then run:  python3 -m wflag.prepare_image"
 fi
 
 # ---------------------------------------------------------------------------
 # Fetch the 2026 Cubs schedule into the local DB
 # ---------------------------------------------------------------------------
 echo "==> Fetching 2026 Cubs schedule..."
-"$VENV_DIR/bin/python3" "$REPO_DIR/setup_schedule.py"
+"$VENV_DIR/bin/python3" -m wflag.setup_schedule
 
 # ---------------------------------------------------------------------------
 # Install systemd service

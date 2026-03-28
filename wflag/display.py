@@ -14,7 +14,7 @@ from pathlib import Path
 log = logging.getLogger(__name__)
 
 # Path to the W flag image (64x32 PNG, pre-processed by prepare_image.py)
-IMAGE_PATH = Path(__file__).parent / "w_flag_64x32.png"
+IMAGE_PATH = Path(__file__).parent.parent / "assets" / "w_flag_64x32.png"
 
 # ---------------------------------------------------------------------------
 # Try to import the real rgbmatrix bindings (only available on the Pi).
@@ -23,6 +23,7 @@ IMAGE_PATH = Path(__file__).parent / "w_flag_64x32.png"
 try:
     from PIL import Image
     from rgbmatrix import RGBMatrix, RGBMatrixOptions
+
     _HW_AVAILABLE = True
 except ImportError:
     _HW_AVAILABLE = False
@@ -52,6 +53,7 @@ _MATRIX = None
 
 
 def _get_matrix():
+    """Return the shared RGBMatrix instance, initialising it if needed."""
     global _MATRIX
     if _MATRIX is None and _HW_AVAILABLE:
         _MATRIX = _build_matrix()
@@ -72,9 +74,8 @@ def show_w_flag() -> None:
 
     matrix = _get_matrix()
     img = Image.open(IMAGE_PATH).convert("RGB")
-    # Ensure correct size (should already be 64x32 after prepare_image.py)
     if img.size != (64, 32):
-        img = img.resize((64, 32), Image.LANCZOS)
+        img = img.resize((64, 32), Image.Resampling.LANCZOS)
 
     canvas = matrix.CreateFrameCanvas()
     canvas.SetImage(img)
