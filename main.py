@@ -38,7 +38,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 CHICAGO_TZ = zoneinfo.ZoneInfo("America/Chicago")
-GAME_BUFFER_HOURS = 3.5   # hours after scheduled start before first result check
+GAME_BUFFER = timedelta(hours=2, minutes=38)  # wait after scheduled start before first result check
 RETRY_INTERVAL_MIN = 5    # minutes between retries while game is in progress
 MAX_RETRY_UNTIL_HOUR = 23 # stop retrying after 11 PM
 
@@ -102,7 +102,7 @@ def schedule_todays_check() -> None:
         f"{game['game_date']} {game['game_time']}", "%Y-%m-%d %H:%M"
     ).replace(tzinfo=CHICAGO_TZ)
 
-    check_dt = start_dt + timedelta(hours=GAME_BUFFER_HOURS)
+    check_dt = start_dt + GAME_BUFFER
     now = now_chicago()
 
     log.info(
