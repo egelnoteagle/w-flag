@@ -63,16 +63,18 @@ def fetch_schedule() -> list[dict]:
             home = game["teams"]["home"]["team"]
             away = game["teams"]["away"]["team"]
 
-            games.append({
-                "game_pk": game_pk,
-                "game_date": game_date_chicago.strftime("%Y-%m-%d"),
-                "game_time": game_date_chicago.strftime("%H:%M"),
-                "home_team": home["name"],
-                "away_team": away["name"],
-                "home_id": home["id"],
-                "away_id": away["id"],
-                "status": "scheduled",
-            })
+            games.append(
+                {
+                    "game_pk": game_pk,
+                    "game_date": game_date_chicago.strftime("%Y-%m-%d"),
+                    "game_time": game_date_chicago.strftime("%H:%M"),
+                    "home_team": home["name"],
+                    "away_team": away["name"],
+                    "home_id": home["id"],
+                    "away_id": away["id"],
+                    "status": "scheduled",
+                }
+            )
 
     return games
 

@@ -38,14 +38,17 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 CHICAGO_TZ = zoneinfo.ZoneInfo("America/Chicago")
-GAME_BUFFER = timedelta(hours=2, minutes=38)  # wait after scheduled start before first result check
-RETRY_INTERVAL_MIN = 5    # minutes between retries while game is in progress
-MAX_RETRY_UNTIL_HOUR = 23 # stop retrying after 11 PM
+GAME_BUFFER = timedelta(
+    hours=2, minutes=38
+)  # wait after scheduled start before first result check
+RETRY_INTERVAL_MIN = 5  # minutes between retries while game is in progress
+MAX_RETRY_UNTIL_HOUR = 23  # stop retrying after 11 PM
 
 
 # ---------------------------------------------------------------------------
 # Core logic
 # ---------------------------------------------------------------------------
+
 
 def now_chicago() -> datetime:
     """Return the current datetime in Chicago local time."""
@@ -60,12 +63,16 @@ def check_and_display(game: dict) -> None:
     game_pk = game["game_pk"]
     log.info(
         "Checking result for game %s: %s @ %s",
-        game_pk, game["away_team"], game["home_team"],
+        game_pk,
+        game["away_team"],
+        game["home_team"],
     )
 
     while True:
         if now_chicago().hour >= MAX_RETRY_UNTIL_HOUR:
-            log.warning("Past %d:00 — giving up on game %s", MAX_RETRY_UNTIL_HOUR, game_pk)
+            log.warning(
+                "Past %d:00 — giving up on game %s", MAX_RETRY_UNTIL_HOUR, game_pk
+            )
             check_game.update_game_status(game_pk, "final")
             return
 
@@ -82,7 +89,11 @@ def check_and_display(game: dict) -> None:
             check_game.update_game_status(game_pk, "final")
             return
         else:
-            log.info("Game %s not final yet — retrying in %d min", game_pk, RETRY_INTERVAL_MIN)
+            log.info(
+                "Game %s not final yet — retrying in %d min",
+                game_pk,
+                RETRY_INTERVAL_MIN,
+            )
             time.sleep(RETRY_INTERVAL_MIN * 60)
 
 
@@ -107,8 +118,10 @@ def schedule_todays_check() -> None:
 
     log.info(
         "Game today: %s @ %s, starts %s — will check result at %s",
-        game["away_team"], game["home_team"],
-        start_dt.strftime("%H:%M"), check_dt.strftime("%H:%M"),
+        game["away_team"],
+        game["home_team"],
+        start_dt.strftime("%H:%M"),
+        check_dt.strftime("%H:%M"),
     )
 
     if check_dt <= now:
@@ -136,6 +149,7 @@ def daily_reset() -> None:
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
+
 
 def main() -> None:
     """Start the W Flag daemon."""

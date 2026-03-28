@@ -45,7 +45,9 @@ def main() -> None:
     source = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_SOURCE
     if not source.exists():
         print(f"Source image not found: {source}")
-        print(f"Place your W flag image at {DEFAULT_SOURCE} or pass a path as an argument.")
+        print(
+            f"Place your W flag image at {DEFAULT_SOURCE} or pass a path as an argument."
+        )
         sys.exit(1)
     prepare(source)
 

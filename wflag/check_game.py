@@ -91,8 +91,6 @@ def cubs_won(game_pk: int) -> bool | None:
 def update_game_status(game_pk: int, status: str) -> None:
     """Persist a game status update to the local DB."""
     conn = sqlite3.connect(DB_PATH)
-    conn.execute(
-        "UPDATE games SET status = ? WHERE game_pk = ?", (status, game_pk)
-    )
+    conn.execute("UPDATE games SET status = ? WHERE game_pk = ?", (status, game_pk))
     conn.commit()
     conn.close()

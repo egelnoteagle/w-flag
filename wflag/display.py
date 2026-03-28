@@ -39,11 +39,11 @@ def _build_matrix():
     options.cols = 64
     options.chain_length = 1
     options.parallel = 1
-    options.hardware_mapping = "regular"   # standard HUB75 wiring
-    options.scan_mode = 0                  # progressive
+    options.hardware_mapping = "regular"  # standard HUB75 wiring
+    options.scan_mode = 0  # progressive
     options.pwm_bits = 11
-    options.brightness = 80               # 0-100; tune to taste
-    options.gpio_slowdown = 1             # Pi Zero may need 2 if flickering
+    options.brightness = 80  # 0-100; tune to taste
+    options.gpio_slowdown = 1  # Pi Zero may need 2 if flickering
     options.drop_privileges = True
     return RGBMatrix(options=options)
 
