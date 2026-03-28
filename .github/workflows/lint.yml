@@ -1,0 +1,37 @@
+name: Lint & Type Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install ruff mypy
+          pip install -r requirements.txt
+
+      # Ruff: linting + import sorting (replaces flake8, isort, pylint)
+      - name: Ruff lint
+        run: ruff check .
+
+      # Ruff: formatting check
+      - name: Ruff format
+        run: ruff format --check .
+
+      # Mypy: type checking
+      # rgbmatrix has no stubs so we ignore missing imports for it
+      - name: Mypy
+        run: mypy --ignore-missing-imports --python-version 3.11 *.py

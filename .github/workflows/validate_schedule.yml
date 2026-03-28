@@ -1,0 +1,43 @@
+name: Validate MLB Schedule API
+
+on:
+  schedule:
+    - cron: "0 12 * * 1"  # Every Monday at noon UTC
+  workflow_dispatch:        # Allow manual runs from the Actions tab
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch Cubs schedule from MLB API
+        run: python setup_schedule.py
+
+      - name: Verify schedule database has games
+        run: |
+          python - <<'EOF'
+          import sqlite3, sys
+          conn = sqlite3.connect("schedule.db")
+          count = conn.execute("SELECT COUNT(*) FROM games").fetchone()[0]
+          print(f"Games in database: {count}")
+          if count == 0:
+              print("ERROR: No games found — MLB API may have changed or season data is missing.")
+              sys.exit(1)
+          # Spot-check that required columns are populated
+          row = conn.execute("SELECT game_pk, game_date, game_time, home_team, away_team FROM games LIMIT 1").fetchone()
+          print(f"Sample row: {row}")
+          if any(v is None or v == "" for v in row):
+              print("ERROR: One or more columns are empty in the first row.")
+              sys.exit(1)
+          print("Schedule validation passed.")
+          EOF

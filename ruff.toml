@@ -1,0 +1,12 @@
+[lint]
+select = ["E", "F", "I", "UP"]   # pycodestyle, pyflakes, isort, pyupgrade
+ignore = [
+    "E501",   # line too long — not enforced for this project
+]
+
+[lint.per-file-ignores]
+"display.py" = ["F401"]  # rgbmatrix/PIL imports inside try/except flagged as unused on non-Pi
+
+[format]
+quote-style = "double"
+indent-style = "space"
