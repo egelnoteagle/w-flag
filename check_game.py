@@ -4,11 +4,14 @@ Query the MLB Stats API for the result of a specific Cubs game.
 Returns True if the Cubs won, False if they lost, None if the game is not yet final.
 """
 
-import requests
-import sqlite3
+from __future__ import annotations
+
 import logging
-from datetime import date
+import sqlite3
+from datetime import date, datetime
 import zoneinfo
+
+import requests
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +29,6 @@ MLB_FEED_URL = (
 def get_todays_game(today: date | None = None) -> dict | None:
     """Return the scheduled Cubs game row for today, or None if no game."""
     if today is None:
-        from datetime import datetime
         today = datetime.now(CHICAGO_TZ).date()
 
     conn = sqlite3.connect(DB_PATH)
