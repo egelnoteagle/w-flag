@@ -12,6 +12,7 @@ Output is always w_flag_64x32.png.
 
 import sys
 from pathlib import Path
+
 from PIL import Image, ImageEnhance
 
 MATRIX_W, MATRIX_H = 64, 32

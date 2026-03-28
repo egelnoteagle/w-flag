@@ -20,8 +20,9 @@ import logging
 import signal
 import sys
 import time
-from datetime import datetime, timedelta, date
 import zoneinfo
+from datetime import datetime, timedelta
+
 import schedule  # pip install schedule
 
 import check_game

@@ -21,8 +21,8 @@ IMAGE_PATH = Path(__file__).parent / "w_flag_64x32.png"
 # Fall back to a stub so the rest of the code can be developed/tested off-Pi.
 # ---------------------------------------------------------------------------
 try:
-    from rgbmatrix import RGBMatrix, RGBMatrixOptions
     from PIL import Image
+    from rgbmatrix import RGBMatrix, RGBMatrixOptions
     _HW_AVAILABLE = True
 except ImportError:
     _HW_AVAILABLE = False

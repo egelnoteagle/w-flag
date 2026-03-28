@@ -8,10 +8,11 @@ MLB Stats API (free, no key required): https://statsapi.mlb.com/api/v1/
 """
 
 import sqlite3
-import requests
 import sys
-from datetime import datetime, timezone
 import zoneinfo
+from datetime import datetime
+
+import requests
 
 DB_PATH = "schedule.db"
 CUBS_TEAM_ID = 112
