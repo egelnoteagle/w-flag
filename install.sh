@@ -34,7 +34,46 @@ python3 -m venv "$VENV_DIR"
 "$VENV_DIR/bin/pip" install -r "$REPO_DIR/requirements.txt"
 
 echo "==> Installing rpi-rgb-led-matrix Python bindings into venv..."
-"$VENV_DIR/bin/pip" install /opt/rpi-rgb-led-matrix/bindings/python/
+# The upstream repo ships only Cython sources (.pyx) with no build tooling,
+# so we generate a setup.py and compile the extensions ourselves.
+"$VENV_DIR/bin/pip" install cython setuptools
+
+cat > /opt/rpi-rgb-led-matrix/bindings/python/setup.py << 'SETUP_PY'
+from setuptools import setup, Extension
+from Cython.Build import cythonize
+import os
+
+matrix_dir = "/opt/rpi-rgb-led-matrix"
+
+extensions = cythonize([
+    Extension(
+        "rgbmatrix.core",
+        sources=["rgbmatrix/core.pyx"],
+        include_dirs=[os.path.join(matrix_dir, "include")],
+        libraries=["rgbmatrix"],
+        library_dirs=[os.path.join(matrix_dir, "lib")],
+        language="c++",
+    ),
+    Extension(
+        "rgbmatrix.graphics",
+        sources=["rgbmatrix/graphics.pyx"],
+        include_dirs=[os.path.join(matrix_dir, "include")],
+        libraries=["rgbmatrix"],
+        library_dirs=[os.path.join(matrix_dir, "lib")],
+        language="c++",
+    ),
+], language_level=3)
+
+setup(
+    name="rgbmatrix",
+    ext_modules=extensions,
+    packages=["rgbmatrix"],
+)
+SETUP_PY
+
+cd /opt/rpi-rgb-led-matrix/bindings/python
+"$VENV_DIR/bin/pip" install .
+cd "$REPO_DIR"
 
 # ---------------------------------------------------------------------------
 # Prepare the W flag image
