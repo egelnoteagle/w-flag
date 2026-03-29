@@ -20,10 +20,9 @@ if [ ! -d /opt/rpi-rgb-led-matrix ]; then
     git clone https://github.com/hzeller/rpi-rgb-led-matrix.git /opt/rpi-rgb-led-matrix
 fi
 
-echo "==> Building rpi-rgb-led-matrix Python bindings..."
-cd /opt/rpi-rgb-led-matrix/bindings/python
-make build PYTHON="$(which python3)"
-make install PYTHON="$(which python3)"
+echo "==> Building rpi-rgb-led-matrix C library..."
+cd /opt/rpi-rgb-led-matrix
+make -j2
 cd "$REPO_DIR"
 
 # ---------------------------------------------------------------------------
@@ -33,6 +32,9 @@ echo "==> Creating Python venv at $VENV_DIR..."
 python3 -m venv "$VENV_DIR"
 "$VENV_DIR/bin/pip" install --upgrade pip
 "$VENV_DIR/bin/pip" install -r "$REPO_DIR/requirements.txt"
+
+echo "==> Installing rpi-rgb-led-matrix Python bindings into venv..."
+"$VENV_DIR/bin/pip" install /opt/rpi-rgb-led-matrix/bindings/python/
 
 # ---------------------------------------------------------------------------
 # Prepare the W flag image
