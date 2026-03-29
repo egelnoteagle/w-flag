@@ -21,9 +21,9 @@ if [ ! -d /opt/rpi-rgb-led-matrix ]; then
 fi
 
 echo "==> Building rpi-rgb-led-matrix Python bindings..."
-cd /opt/rpi-rgb-led-matrix
-make -j2 build-python PYTHON="$(which python3)"
-make install-python PYTHON="$(which python3)"
+cd /opt/rpi-rgb-led-matrix/bindings/python
+make build PYTHON="$(which python3)"
+make install PYTHON="$(which python3)"
 cd "$REPO_DIR"
 
 # ---------------------------------------------------------------------------
