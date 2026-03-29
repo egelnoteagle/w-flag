@@ -42,14 +42,16 @@ cat > /opt/rpi-rgb-led-matrix/bindings/python/setup.py << 'SETUP_PY'
 from setuptools import setup, Extension
 from Cython.Build import cythonize
 import os
+import PIL
 
 matrix_dir = "/opt/rpi-rgb-led-matrix"
+pillow_dir = os.path.dirname(PIL.__file__)
 
 extensions = cythonize([
     Extension(
         "rgbmatrix.core",
         sources=["rgbmatrix/core.pyx"],
-        include_dirs=[os.path.join(matrix_dir, "include")],
+        include_dirs=[os.path.join(matrix_dir, "include"), pillow_dir],
         libraries=["rgbmatrix"],
         library_dirs=[os.path.join(matrix_dir, "lib")],
         language="c++",
@@ -57,7 +59,7 @@ extensions = cythonize([
     Extension(
         "rgbmatrix.graphics",
         sources=["rgbmatrix/graphics.pyx"],
-        include_dirs=[os.path.join(matrix_dir, "include")],
+        include_dirs=[os.path.join(matrix_dir, "include"), pillow_dir],
         libraries=["rgbmatrix"],
         library_dirs=[os.path.join(matrix_dir, "lib")],
         language="c++",
