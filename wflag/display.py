@@ -44,7 +44,7 @@ def _build_matrix():
     options.pwm_bits = 11
     options.brightness = 80  # 0-100; tune to taste
     options.gpio_slowdown = 1  # Pi Zero may need 2 if flickering
-    options.drop_privileges = True
+    options.drop_privileges = False
     return RGBMatrix(options=options)
 
 
