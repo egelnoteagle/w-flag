@@ -48,7 +48,7 @@ matrix_dir = "/opt/rpi-rgb-led-matrix"
 extensions = cythonize([
     Extension(
         "rgbmatrix.core",
-        sources=["rgbmatrix/core.pyx"],
+        sources=["rgbmatrix/core.pyx", "rgbmatrix/shims/pillow.c"],
         include_dirs=[os.path.join(matrix_dir, "include"), "rgbmatrix/shims"],
         libraries=["rgbmatrix"],
         library_dirs=[os.path.join(matrix_dir, "lib")],
