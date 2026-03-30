@@ -22,7 +22,7 @@ CHICAGO_TZ = zoneinfo.ZoneInfo("America/Chicago")
 
 MLB_FEED_URL = (
     "https://statsapi.mlb.com/api/v1.1/game/{game_pk}/feed/live"
-    "?fields=gameData,status,abstractGameState,detailedState,teams,home,away,team,id,linescore,teams,runs,wins,losses"
+    "?fields=gameData,status,abstractGameState,detailedState,teams,home,away,team,id,liveData,linescore,teams,runs"
 )
 
 
@@ -72,7 +72,7 @@ def cubs_won(game_pk: int) -> bool | None:
     home_id = teams.get("home", {}).get("id")
     away_id = teams.get("away", {}).get("id")
 
-    linescore = data.get("linescore", {})
+    linescore = data.get("liveData", {}).get("linescore", {})
     home_runs = linescore.get("teams", {}).get("home", {}).get("runs", 0)
     away_runs = linescore.get("teams", {}).get("away", {}).get("runs", 0)
 
