@@ -38,18 +38,28 @@ echo "==> Installing rpi-rgb-led-matrix Python bindings into venv..."
 # so we generate a setup.py and compile the extensions ourselves.
 "$VENV_DIR/bin/pip" install cython setuptools
 
-cat > /opt/rpi-rgb-led-matrix/bindings/python/setup.py << 'SETUP_PY'
+# Pillow's internal C headers (Imaging.h etc.) are not shipped with binary
+# wheels; clone the matching source to get them.
+PILLOW_VERSION="$("$VENV_DIR/bin/python3" -c "import PIL; print(PIL.__version__)")"
+if [ ! -d /tmp/pillow-src ]; then
+    echo "==> Cloning Pillow $PILLOW_VERSION source for C headers..."
+    git clone --depth 1 --branch "$PILLOW_VERSION" https://github.com/python-pillow/Pillow.git /tmp/pillow-src
+fi
+PILLOW_IMAGING_DIR="/tmp/pillow-src/src/libImaging"
+
+cat > /opt/rpi-rgb-led-matrix/bindings/python/setup.py << SETUP_PY
 from setuptools import setup, Extension
 from Cython.Build import cythonize
 import os
 
 matrix_dir = "/opt/rpi-rgb-led-matrix"
+pillow_imaging_dir = "$PILLOW_IMAGING_DIR"
 
 extensions = cythonize([
     Extension(
         "rgbmatrix.core",
         sources=["rgbmatrix/core.pyx", "rgbmatrix/shims/pillow.c"],
-        include_dirs=[os.path.join(matrix_dir, "include"), "rgbmatrix/shims"],
+        include_dirs=[os.path.join(matrix_dir, "include"), "rgbmatrix/shims", pillow_imaging_dir],
         libraries=["rgbmatrix"],
         library_dirs=[os.path.join(matrix_dir, "lib")],
         language="c++",
@@ -57,7 +67,7 @@ extensions = cythonize([
     Extension(
         "rgbmatrix.graphics",
         sources=["rgbmatrix/graphics.pyx"],
-        include_dirs=[os.path.join(matrix_dir, "include"), "rgbmatrix/shims"],
+        include_dirs=[os.path.join(matrix_dir, "include"), "rgbmatrix/shims", pillow_imaging_dir],
         libraries=["rgbmatrix"],
         library_dirs=[os.path.join(matrix_dir, "lib")],
         language="c++",
@@ -72,7 +82,7 @@ setup(
 SETUP_PY
 
 cd /opt/rpi-rgb-led-matrix/bindings/python
-"$VENV_DIR/bin/pip" install .
+"$VENV_DIR/bin/pip" install --no-build-isolation .
 cd "$REPO_DIR"
 
 # ---------------------------------------------------------------------------
